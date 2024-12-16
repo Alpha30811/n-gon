@@ -1,31 +1,16 @@
 ******************************************************** NEXT PATCH **************************************************
 
-new level testChamber2
-  New camera flip effect
-  new laser level element now has collisions with blocks
-  elevators are less deadly to mobs at low speeds
-
-difficulty level progression reworked
-no constraints on final boss
-new constraint - healing disabled
-
-quenching 0.3->0.4x overheal converted to max health
-tungsten carbide 400->500 extra max health
-paradigm shift's  health loss is no longer reduced by damage taken reduction
-coherence no longer remembers tech that is set to zero frequency, like removed tech
-
-JUNK tech: pet the bot - lets you pet your bots
-JUNK tech: the upside down - flip everything
-
-bug
-  prevented possible duplicate choices with coherence tech
-  fixed issues with showing and hiding health bars on that constraint
-  fixed crash from autonomous defense
-  mass-energy mode wasn't getting any benefit from damage taken reduction
-    it now gets square root of damage taken reduction
+reworked focuser mobs to fire blue energy draining laser instead of charging player
 
 ******************************************************** BUGS ********************************************************
 
+  couple reports of crashes from many-worlds
+    around level 5-7
+    for me crash on factory level 7
+    might be linked to having all the guns?
+    the crash was in matter.js something about collisions and undefined
+      maybe too many things were spawned in the same spot?
+    also occurs when you just gain many random tech in testing mode
 
 figure out why seeded random isn't making runs the same:
   shuffle is being used for a wide variety of things that don't need a seeded random
@@ -55,62 +40,44 @@ player can become crouched while not touching the ground if they exit the ground
 
 *********************************************************** TODO *****************************************************
 
-new level based laser element
-  !!update new version into other levels
-
-level technique: pairs of touch activated elevators jump on one to get high enough to jump on the next one
-
-flip player upside down
-  fieldTech: negative mass?
-  JUNK tech?
-  final boss effect
-    maybe just flip player camera and mouse
-  level effect flip map vertically also
-    new subway station
-    new full level
-      needs a device that will flip gravity
-    update to old level so it is more surreal
-      levels with few effects, just blocks and map
-      levels with a roof or infinite fall
-        towers, lab
-      
+new level - something with movers, rubber band blocks
+button/switch input ideas from Cocoon game
+  pick up blocks that have a rubber band attached to a sliding switch
+    as player moves the vector direction of the rubber band will move the slider left or right
+    use this to open doors, move larger blocks, ...
+  switches that toggle left, right when player presses input.field while standing nearby
+    replace laser off on switch?
+    platform that rises up when player presses input.field while standing
+  How to instruct player to use field on these?
+    color with field #0ff
+    draw field effect
+    make it still functional without the field button
 
 
+!!conformal - similar rules for small and big scales  linked to holographic principle
+!!holonomy - parallel transport of a vector leads to movement (applies to curved space)
+  when far away from your wormhole regenerate 1% of your max energy per second
+  when far away from your wormhole reduce damage taken
+  heal last hit damage after enter wormhole
+!!quasar - plasma torch from both ends
+  only after wormhole eats a block fire?
+    or just increase plasma length after eating block?
 
-
-constraints should show future constraints in pause menu
-  pre calculate all constraints for up to 13 levels?
-    loop constraints after that
+make a text orb for JUNK text to make JUNK more clear
 
 procedural animation 
   https://www.youtube.com/watch?v=qlfh_rv6khY
 
-not implemented random constraint ideas________________________
-  mob death spawns something
-    mob bullets
-  bosses heals nearby mobs
-  ammo power ups give 0.7x ammo
-  2x research costs
-  mobs slowly regen health
-  exit door takes 10x time to open,
-    and while door is opening (ghosters, suckers) attack?
-  can't have more then 15 bullets
-    how to code?
-  remove 2 random tech and return them next level
-
 tech: ice-VII - 1.5x duration for ice-IX
-
 tech:  - freezing grenades/explosions
-
 tech:  - when you get a bot, get a second bot
-
 tech:  - after killing a Boss
   heal to full
   gain 3x damage for the rest of the level
 
 new level - rework testChamber
 
-Boss (or mob) that quickly moves towards player, but they moves perpendicularly to player, like dodging
+Boss (or mob) that quickly moves towards player, but then moves perpendicularly to player, like dodging
   could respond to when player presses fire key or to when it takes damage
 
 new snakeBoss type that eats mobs
@@ -141,12 +108,6 @@ tech: atomic pile - lose 1 health if you are above the maximum energy
   do damage?
   plasma torch tech?
 
-figure out how to put instructions for controls in background on initial level
-  mouse smooth makes the text position jitter when it moves sub pixels
-    hide the jitter with artificial jitter to make it seem intentional
-      make it look like the instructions are on a fuzzy TV screen
-    when player presses move buttons highlight the box/letter for those buttons
-  
 make player mass an adjustable var in the skin
   does this mess with jump height or air control?
 increase mass and movement speed at the same time
@@ -156,16 +117,6 @@ increase mass and movement speed at the same time
   possible player.mass bad interactions
     grapple
 
-bullets should trigger shrinking platforms level element?
-
-level element - player activated elevators
-  could be fast and throw player
-  could just rise up slow (slow might have a bad jerky animation)
-
-rework energy and health HUD
-  make both diegetic?
-    how?  not sure there is a good way to do this...
-
 tech - after a power up is duplicated
   update text to random effect after choosing tech, or after each trigger, or on first display of tech
   pick 1 effect at random
@@ -173,13 +124,7 @@ tech - after a power up is duplicated
     summon JUNK bots for 10 seconds
     2x current energy
     gain 1.01x damage permanently
-  cool name: 
-
-field tech: negative mass - quickly pull/teleport in all nearby blocks and then fire them away from player
-  how does player triggers effect?
-    picking up a block pulls in all nearby blocks, throwing block fires all nearby blocks
-    taking damage
-  auto aim 50% of blocks at mobs
+  cool name:
 
 after picking up heals gain ____
   0.1x damage taken for 12s
@@ -195,42 +140,8 @@ tech - getting caught in an explosion gives you _____
   damage for 10 seconds?
   heals
 
-tech - limit total number of tech to like 10?
-
-tech - destroying blocks gives _____
-
-removeJunkTechFromPool doesn't seem to remove the correct amount
-
-wormholes that end inside wall check to see if the space before the wall is safe and end there instead
-  can use laser code
-
-tech:  - (1 + 0.01)x for each tech, gun, field you've picked up
-  scales with born rule, duplication, remove tech
-
 explosions have a chance to spawn spores
   infinite feedback loop with spores that explode?
-
-make sure healing isn't effected by simulation.healScale
-  instead heal orb size should be scaled
-    but the ratio between size and heal shouldn't be effected
-
-boss - tracks the position, velocity, angle of power ups, blocks, and bullets it fires
-  reactor only?
-  will rewind time
-    after damage threshold?
-  does it track player bullets? 
-
-button/switch input ideas from Cocoon game
-  pick up blocks that have a rubber band attached to a sliding switch
-    as player moves the vector direction of the rubber band will move the slider left or right
-    use this to open doors, move larger blocks, ...
-  switches that toggle left, right when player presses input.field while standing nearby
-    replace laser off on switch?
-    platform that rises up when player presses input.field while standing
-  How to instruct player to use field on these?
-    color with field #0ff
-    draw field effect
-    make it still functional without the field button
 
 tech - getting a new gun also gives you 2 random tech for that gun
   or a field?
@@ -875,9 +786,6 @@ mob/boss that fires a laser at player, but give player time to avoid
   they target where player was 1 second ago
   they turn to face player?
 
-tech rocket jump - jumping produces an explosion at your feet that lets you jump extra high, but does some damage
-  require electric reactive armor?
-
 Plasma Burner: upgrade for plasma torch, basically just a jet engine. does high damage, but short range, mostly for player movement.
   maybe reduce gravity to really low then apply a vector away from mouse direction
 
@@ -886,17 +794,6 @@ auto-gon - auto battler with n-gon mob AI and tech
     they fight other mobs and bosses
   similar research and tech system to n-gon
   some mobs can fire player weapons
-
-tech: relativistic jets:
-  small particles that shot out from front and back poles and end up in a wide variety of spirals
-    slow trickle when charging and several more when firing
-  
-Tech: Make player smol
-
-adapt the cloaking graphics to make a flashlight cone visual effect
-  put code in level.do?
-
-be nice if block throwing had a projected path
 
 Pilot wave tech
   Energy use is increased, but you can now shape blocks using pressure
@@ -1270,11 +1167,8 @@ look up sci-fi science ideas here  https://projectrho.com/public_html/rocket/
 
 possible names for tech
   sidereal - with respect to the stars  (an extra rotation for time keeping)
-  holonomy -  parallel transport of a vector leads to movement (applies to curved space)
-  holographic - 2-D surface can predict the 3-D space behind it?  I think
   entropic gravity - gravity is emergent in a holographic way
     (maybe a field tech for negative mass)
-  conformal - similar rules for small and big scales  linked to holographic principle
   hypergolic - A hypergolic propellant combination used in a rocket engine is one whose components spontaneously ignite when they come into contact with each other.
   swarm intelligence - for a drone tech
   metaheuristic - is a higher-level procedure or heuristic designed to find, generate, or select a heuristic (partial search algorithm) that may provide a sufficiently good solution to an optimization problem, especially with incomplete or imperfect information or limited computation capacity
@@ -1343,6 +1237,11 @@ possible names for tech
   cork - used as a heat shield for rockets
   P = NP - something with speeding up calculation times
   transistivity - something where a>b and b>c ->  a>c
+  lenticular - looks different from different angles (lasers?, cloaking?)
+    every few seconds pick a random skin tech?
+  De Sitter space - simple model of universe related to general relativity (mass-energy?)
+  active optics - something with lasers?  maybe something with diffuse beam getting smaller
+  Quintessence - related to dark energy
 
 ******************************************************* DESIGN ******************************************************
 
@@ -1367,3 +1266,23 @@ list of powerful synergies
   electronegativity and high energy?
     electronegativity + anyon + duplication + Maxwells demon + interest + pair production
   chain reaction + invulnerable + Abelian group + parasitism = clear all mobs on level
+
+
+************************************************* COMMUNITY LINKS *************************************************
+
+load old commits
+  www.cornbread2100.com/n-gon-loader
+
+n-gon fork
+  kgurchiek.github.io/n-gon-portal-gun
+  3xiondev.github.io/n-gon-upgraded
+  coaldeficit.github.io/c-gon
+  c-rxxp-y.github.io/n-gon-enhanced
+
+bookmarlet
+  github.com/Whyisthisnotavalable/n-scythe
+  github.com/kgurchiek/n-gon-mobile
+  github.com/kgurchiek/n-gon-controller
+text
+  ngon.fandom.com/wiki/N-gon
+  github.com/3xionDev/n-docs

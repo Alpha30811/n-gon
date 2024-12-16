@@ -658,29 +658,6 @@ const mobs = {
                                 this.cons.length = 100 + 1.5 * this.radius;
                                 this.cons2.length = 100 + 1.5 * this.radius;
                             }
-
-
-
-                            // if (!(simulation.cycle % (this.seePlayerFreq * 2))) {
-                            //     const unit = Vector.normalise(Vector.sub(this.seePlayer.position, this.position))
-                            //     const goal = Vector.add(this.position, Vector.mult(unit, stepRange))
-                            //     this.springTarget.x = goal.x;
-                            //     this.springTarget.y = goal.y;
-                            //     // this.springTarget.x = this.seePlayer.position.x;
-                            //     // this.springTarget.y = this.seePlayer.position.y;
-                            //     this.cons.length = -200;
-                            //     this.cons2.length = 100 + 1.5 * this.radius;
-                            // } else if (!(simulation.cycle % this.seePlayerFreq)) {
-                            //     const unit = Vector.normalise(Vector.sub(this.seePlayer.position, this.position))
-                            //     const goal = Vector.add(this.position, Vector.mult(unit, stepRange))
-                            //     this.springTarget2.x = goal.x;
-                            //     this.springTarget2.y = goal.y;
-                            //     // this.springTarget2.x = this.seePlayer.position.x;
-                            //     // this.springTarget2.y = this.seePlayer.position.y;
-                            //     this.cons.length = 100 + 1.5 * this.radius;
-                            //     this.cons2.length = -200;
-                            // }
-
                         }
                     }
                 }
@@ -1255,7 +1232,7 @@ const mobs = {
                         });
                     }
 
-                    if (tech.isVerlet && !m.isBodiesAsleep) {
+                    if (tech.isVerlet && !m.isTimeDilated) {
                         requestAnimationFrame(() => {
                             simulation.timePlayerSkip(this.isBoss ? 60 : 30)
                             simulation.loop(); //ending with a wipe and normal loop fixes some very minor graphical issues where things are draw in the wrong locations
@@ -1322,7 +1299,7 @@ const mobs = {
                         powerUps.setPowerUpMode(); //needed after adjusting duplication chance
                     }
                 } else if (tech.isShieldAmmo && this.shield && this.shieldCount === 1) {
-                    let type = tech.isEnergyNoAmmo ? "heal" : "ammo"
+                    let type = "ammo"
                     if (Math.random() < 0.4) {
                         type = "heal"
                     } else if (Math.random() < 0.3 && !tech.isSuperDeterminism) {

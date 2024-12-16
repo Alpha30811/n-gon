@@ -13,7 +13,9 @@ Math.hash = s => {
 // document.getElementById("seed").placeholder = Math.initialSeed = Math.floor(Date.now() % 100000) //random every time:  just the time in milliseconds UTC
 
 window.addEventListener('error', error => {
-    simulation.inGameConsole(`<strong style='color:red;'>ERROR:</strong> ${error.message}  <u>${error.filename}:${error.lineno}</u>`)
+    // simulation.inGameConsole(`<strong style='color:red;'>ERROR:</strong> ${error.message}  <u>${error.filename}:${error.lineno}</u>`)
+    simulation.inGameConsole(`<strong style='color:red;'>ERROR:</strong> ${(error.stack && error.stack.replace(/\n/g, "<br>")) || (error.message + ` <u>${error.filename}:${error.lineno}</u>`)}`);
+
 });
 
 document.getElementById("seed").placeholder = Math.initialSeed = String(Math.floor(Date.now() % 100000))
@@ -474,12 +476,13 @@ const build = {
 
         // <strong class='color-g'>${b.activeGun === null || b.activeGun === undefined ? "undefined" : b.guns[b.activeGun].name}</strong> (${b.activeGun === null || b.activeGun === undefined ? "0" : b.guns[b.activeGun].ammo})
 
+        // <br>
+        // <input onclick="build.showImages('pause')" type="checkbox" id="hide-images-pause" name="hide-images-pause" ${localSettings.isHideImages ? "checked" : ""}>
+        // <label for="hide-images-pause" title="hide images for fields, guns, and tech" style="font-size:1.15em;" >hide images</label>
+
         let text = `<div class="pause-grid-module" style="padding: 8px;">
 <span style="font-size:1.4em;font-weight: 600; float: left;">PAUSED</span> 
 <em style="float: right;color:#ccc;">press ${input.key.pause} to resume</em>
-<br>
-<input onclick="build.showImages('pause')" type="checkbox" id="hide-images-pause" name="hide-images-pause" ${localSettings.isHideImages ? "checked" : ""}>
-<label for="hide-images-pause" title="hide images for fields, guns, and tech" style="font-size:1.15em;" >hide images</label>
 <br>
 <button onclick="build.shareURL(false)" class='sort-button' style="font-size:1em;float: right;">copy build URL</button>
 <input onclick="build.hideHUD('settings')" type="checkbox" id="hide-hud" name="hide-hud" ${localSettings.isHideHUD ? "checked" : ""}>
@@ -511,7 +514,7 @@ ${botText}
 <span style="float: right;">mouse (${simulation.mouseInGame.x.toFixed(0)}, ${simulation.mouseInGame.y.toFixed(0)})</span>
 <br>cycles ${m.cycle}
 <span style="float: right;">velocity (${player.velocity.x.toFixed(2)}, ${player.velocity.y.toFixed(2)})</span>
-<br>mobs ${mob.length} (${spawn.pickList[0]},  ${spawn.pickList[0]})
+<br>mobs ${mob.length} (${spawn.pickList[0]},  ${spawn.pickList[1]})
 <span style="float: right;">blocks ${body.length}</span>
 <br>bullets ${bullet.length}
 <span style="float: right;">power ups ${powerUp.length}</span>
@@ -1063,8 +1066,7 @@ ${simulation.difficultyMode > 4 ? `<details id="constraints-details" style="padd
         b.activeGun = null;
         b.inventoryGun = 0;
         simulation.makeGunHUD();
-        tech.setupAllTech();
-        m.resetSkin();
+        tech.resetAllTech();
         build.populateGrid();
         document.getElementById("field-0").classList.add("build-field-selected");
         document.getElementById("experiment-grid").style.display = "grid"
@@ -1165,6 +1167,7 @@ ${simulation.difficultyMode > 4 ? `<details id="constraints-details" style="padd
 function openExperimentMenu() {
     document.getElementById("experiment-button").style.display = "none";
     document.getElementById("training-button").style.display = "none";
+    document.getElementById("start-button").style.display = "none";
     const el = document.getElementById("experiment-grid")
     el.style.display = "grid"
     document.body.style.overflowY = "scroll";
@@ -1831,6 +1834,7 @@ if (localSettings.isAllowed && !localSettings.isEmpty) {
     }
     if (localSettings.isHideImages === undefined) localSettings.isHideImages = true //default to hide images
     document.getElementById("hide-images").checked = localSettings.isHideImages
+    // localSettings.isHideImages = true //no images
 
     if (localSettings.isHideHUD === undefined) localSettings.isHideHUD = true
     document.getElementById("hide-hud").checked = localSettings.isHideHUD

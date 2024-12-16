@@ -212,7 +212,7 @@ const powerUps = {
     dupExplode() {
         for (let i = 0, len = powerUp.length; i < len; ++i) {
             if (powerUp[i].isDuplicated) {
-                if (Math.random() < 0.003 && !m.isBodiesAsleep) { //  (1-0.003)^240 = chance to be removed after 4 seconds,   240 = 4 seconds * 60 cycles per second
+                if (Math.random() < 0.003 && !m.isTimeDilated) { //  (1-0.003)^240 = chance to be removed after 4 seconds,   240 = 4 seconds * 60 cycles per second
                     b.explosion(powerUp[i].position, 175 + (11 + 3 * Math.random()) * powerUp[i].size);
                     if (powerUp[i]) {
                         Matter.Composite.remove(engine.world, powerUp[i]);
@@ -285,7 +285,7 @@ const powerUps = {
     endDraft(type, isCanceled = false) { //type should be a gun, tech, or field
         if (isCanceled) {
             if (tech.isCancelDuplication) {
-                const value = 0.05
+                const value = 0.06
                 tech.duplication += value
                 simulation.inGameConsole(`tech.duplicationChance() <span class='color-symbol'>+=</span> ${value}`)
                 simulation.circleFlare(value);
@@ -293,7 +293,7 @@ const powerUps = {
             if (tech.isCancelRerolls) {
                 for (let i = 0, len = 8 + 4 * Math.random(); i < len; i++) {
                     let spawnType
-                    if (Math.random() < 0.4 && !tech.isEnergyNoAmmo) {
+                    if (Math.random() < 0.4) {
                         spawnType = "ammo"
                     } else if (Math.random() < 0.33 && !tech.isSuperDeterminism) {
                         spawnType = "research"
@@ -351,9 +351,10 @@ const powerUps = {
         name: "instructions",
         color: "rgba(100,125,140,0.35)",
         size() {
-            return 150
+            return 130
         },
         effect() {
+            Matter.Body.setVelocity(player, { x: 0, y: 0 });//power up is so big it launches the player,  this stops that
             requestAnimationFrame(() => { //add a background behind the power up menu
                 ctx.fillStyle = `rgba(150,150,150,0.9)`;
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -372,31 +373,33 @@ const powerUps = {
             document.getElementById("choose-grid").classList.remove('choose-grid');
             document.getElementById("choose-grid").style.gridTemplateColumns = "800px"//adjust this to increase the width of the whole menu, but mostly the center column
             let lore = localSettings.loreCount > 0 ? "lore.unlockTesting()               //press T to enter testing" : ""
-            let text = `<div class="grid-container"><pre> <strong>//console commands</strong>
+            let text = `<div class="grid-container" style = "font-size:1rem;padding: 0px;"><pre> <strong>//console commands</strong>
  powerUps.instructions.effect()     //reproduce this message
+ powerUps.warp.effect()             //warp to any level
  tech.giveTech("name")              //replace "name" with tech name
  m.setField("name")                 //standing wave  perfect diamagnetism  negative mass  molecular assembler  plasma torch  time dilation  metamaterial cloaking  pilot wave  wormhole  grappling hook
  b.giveGuns("name")                 //nail gun  shotgun  super balls  wave  missiles  grenades  spores  drones  foam  harpoon  mine  laser
  tech.damage *= 2                   //2x damage
  m.immuneCycle = Infinity           //immune to damage            
+ m.coyoteCycles = Infinity          //air jumps
  m.energy = 0                       //set energy
  m.health = 1                       //set health
  m.maxHealth = 1                    //set max health
- m.energy = 1                       //set energy
  m.maxEnergy = 1                    //set max energy
  simulation.enableConstructMode()   //press T to build with mouse
  ${lore}
 
- //tech gun field heal ammo research coupling boost instructions entanglement
- powerUps.spawn(m.pos.x, m.pos.y, "name")
  Matter.Body.setPosition(player, simulation.mouseInGame);
  spawn.bodyRect(simulation.mouseInGame.x, simulation.mouseInGame.y, 50, 50)
- spawn.randomLevelBoss(simulation.mouseInGame.x, simulation.mouseInGame.y)
+ spawn.randomLevelBoss(simulation.mouseInGame.x, simulation.mouseInGame.y) 
+ powerUps.spawn(m.pos.x, m.pos.y, "name") //tech gun field heal ammo research coupling boost instructions entanglement
+ 
+ //this URL downloads newest version of n-gon 
+ https://codeload.github.com/landgreen/n-gon/zip/refs/heads/master
 
-             <strong>chrome</strong>                     <strong>firefox</strong>
+              <strong>chrome</strong>                     <strong>firefox</strong>
  <strong>Win/Linux:</strong> Ctrl + Shift + J        Ctrl + Shift + J
-       <strong>Mac:</strong> Cmd + Option + J        Cmd + Shift + J</pre></div>
-<div class="choose-grid-module" id="exit" style="text-align: center;font-size: 1.3rem;">exit</div>`
+       <strong>Mac:</strong> Cmd + Option + J        Cmd + Shift + J</pre></div><div class="choose-grid-module" id="exit" style="text-align: center;font-size: 1.3rem;">exit</div>`
             document.getElementById("choose-grid").innerHTML = text
             //show level info
             document.getElementById("choose-grid").style.opacity = "1"
@@ -413,6 +416,77 @@ const powerUps = {
                     document.getElementById("choose-grid").classList.add('choose-grid');
                     document.getElementById("choose-grid").classList.remove('choose-grid-no-images');
                 }
+            });
+        },
+    },
+    warp: {
+        name: "warp",
+        color: "rgb(110,155,160)",
+        size() {
+            return 30
+        },
+        load(name) {
+            level.levels[level.onLevel + 1] = name
+            powerUps.warp.exit()
+            level.nextLevel();
+            // simulation.clearNow = true
+        },
+        exit() {
+            level.unPause()
+            document.body.style.cursor = "none";
+            //reset hide image style
+            if (localSettings.isHideImages) {
+                document.getElementById("choose-grid").classList.add('choose-grid-no-images');
+                document.getElementById("choose-grid").classList.remove('choose-grid');
+            } else {
+                document.getElementById("choose-grid").classList.add('choose-grid');
+                document.getElementById("choose-grid").classList.remove('choose-grid-no-images');
+            }
+        },
+        effect() {
+            requestAnimationFrame(() => { //add a background behind the power up menu
+                ctx.fillStyle = `rgba(150,150,150,0.9)`;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            });
+            powerUps.animatePowerUpGrab('rgba(0, 0, 0,0.6)')
+
+            if (!simulation.paused) {
+                simulation.paused = true;
+                simulation.isChoosing = true; //stops p from un pausing on key down
+                document.body.style.cursor = "auto";
+                document.getElementById("choose-grid").style.pointerEvents = "auto";
+                document.getElementById("choose-grid").style.transitionDuration = "0s";
+            }
+            //build level info
+            document.getElementById("choose-grid").classList.add('choose-grid-no-images');
+            document.getElementById("choose-grid").classList.remove('choose-grid');
+            document.getElementById("choose-grid").style.gridTemplateColumns = "200px"//adjust this to increase the width of the whole menu, but mostly the center column
+            let text = `<div class="choose-grid-module" style="font-size: 1.5rem;color:rgb(110,155,160);text-align:center;"><strong>WARP</strong></div>`
+            text += `<div class="choose-grid-module" id="exit" style="font-size: 1rem;color:rgb(110,155,160);text-align:right;padding-right:5px;"><strong>cancel</strong></div>`
+            text += `<div class="choose-grid-module" style="font-size: 1rem;color:rgb(110,155,160);background-color:#444;text-align:center;">level.uniqueLevels</div>`
+            for (let i = 0; i < level.uniqueLevels.length; i++) {
+                text += `<div class="choose-grid-module" style="font-size: 1rem;padding-left:5px;" onclick="powerUps.warp.load('${level.uniqueLevels[i]}')">${level.uniqueLevels[i]}</div>`   //id="uniqueLevels-warp-${i}"
+            }
+            text += `<div class="choose-grid-module" style="color:rgb(110,155,160);background-color:#444;text-align:center;">level.playableLevels</div>`
+            for (let i = 0; i < level.playableLevels.length; i++) {
+                text += `<div class="choose-grid-module" style="padding-left:5px;" onclick="powerUps.warp.load('${level.playableLevels[i]}')">${level.playableLevels[i]}</div>`
+            }
+            text += `<div class="choose-grid-module" style="color:rgb(110,155,160);background-color:#444;text-align:center;">level.communityLevels</div>`
+            for (let i = 0; i < level.communityLevels.length; i++) {
+                text += `<div class="choose-grid-module" style="padding-left:5px;" onclick="powerUps.warp.load('${level.communityLevels[i]}')">${level.communityLevels[i]}</div>`
+            }
+            text += `<div class="choose-grid-module" style="color:rgb(110,155,160);background-color:#444;text-align:center;">level.trainingLevels</div>`
+            for (let i = 0; i < level.trainingLevels.length; i++) {
+                text += `<div class="choose-grid-module" style="padding-left:5px;" onclick="powerUps.warp.load('${level.trainingLevels[i]}')">${level.trainingLevels[i]}</div>`
+            }
+            document.getElementById("choose-grid").innerHTML = text
+            //show level info
+            document.getElementById("choose-grid").style.opacity = "1"
+            document.getElementById("choose-grid").style.transitionDuration = "0.3s"; //how long is the fade in on
+            document.getElementById("choose-grid").style.visibility = "visible"
+
+            document.getElementById("exit").addEventListener("click", () => {
+                powerUps.warp.exit()
             });
         },
     },
@@ -634,7 +708,7 @@ const powerUps = {
             if (amount !== 0) powerUps.research.count += amount
             if (tech.isRerollBots && !this.isMakingBots) {
                 let cycle = () => {
-                    const cost = 2 + Math.floor(0.25 * b.totalBots())
+                    const cost = 2 + Math.floor(b.totalBots() / 3)
                     if (m.alive && powerUps.research.count >= cost) {
                         requestAnimationFrame(cycle);
                         this.isMakingBots = true
@@ -688,7 +762,7 @@ const powerUps = {
             }
             powerUps.research.currentRerollCount++
             if (tech.isResearchReality) {
-                m.switchWorlds()
+                m.switchWorlds("Ψ(t) collapse")
                 simulation.trails()
                 simulation.inGameConsole(`simulation.amplitude <span class='color-symbol'>=</span> ${Math.random()}`);
             }
@@ -738,7 +812,7 @@ const powerUps = {
                         //     color: simulation.mobDmgColor,
                         //     time: simulation.drawTime
                         // });
-                    } else if (overHeal > 0.13) { //if leftover heals spawn a new spammer heal power up
+                    } else if (overHeal > 0.2) { //if leftover heals spawn a new spammer heal power up
                         requestAnimationFrame(() => {
                             powerUps.directSpawn(this.position.x, this.position.y, "heal", true, Math.min(1, overHeal) * 40 * (simulation.healScale ** 0.25))//    directSpawn(x, y, name, moving = true, mode = null, size = powerUps[name].size()) {
                         });
@@ -809,7 +883,7 @@ const powerUps = {
             const couplingExtraAmmo = (m.fieldMode === 10 || m.fieldMode === 0) ? 1 + 0.04 * m.coupling : 1
             if (b.inventory.length > 0) {
                 powerUps.animatePowerUpGrab('rgba(68, 102, 119,0.25)')
-                if (tech.isAmmoForGun && b.activeGun !== null) { //give extra ammo to one gun only with tech logistics
+                if (tech.isAmmoForGun && (b.activeGun !== null && b.activeGun !== undefined)) { //give extra ammo to one gun only with tech logistics
                     const name = b.guns[b.activeGun]
                     if (name.ammo !== Infinity) {
                         if (tech.ammoCap) {
@@ -1544,7 +1618,7 @@ const powerUps = {
                 powerUps.spawn(x, y - 40, "heal", false)
             }
             if (tech.isResearchReality) powerUps.spawnDelay("research", 6)
-            if (tech.isBanish) powerUps.spawnDelay("research", 2)
+            if (tech.isBanish) powerUps.spawnDelay("research", 3)
             if (tech.isCouplingNoHit) powerUps.spawnDelay("coupling", 9)
             // if (tech.isRerollDamage) powerUps.spawnDelay("research", 1)
         }
@@ -1661,9 +1735,10 @@ const powerUps = {
         }
 
         //count big power ups and small power ups
-        let options = ["heal", "research", "ammo"]
+        let options = ["heal", "research", tech.isBoostReplaceAmmo ? "boost" : "ammo"]
         if (m.coupling) options.push("coupling")
         if (tech.isBoostPowerUps) options.push("boost")
+
         let bigIndexes = []
         let smallIndexes = []
         for (let i = 0; i < powerUp.length; i++) {
@@ -1703,10 +1778,7 @@ const powerUps = {
         }
     },
     spawn(x, y, name, moving = true, size = powerUps[name].size()) {
-        if (
-            (!tech.isSuperDeterminism || (name !== 'research')) &&
-            !(tech.isEnergyNoAmmo && name === 'ammo')
-        ) {
+        if ((!tech.isSuperDeterminism || (name !== 'research'))) {
             if (tech.isBoostReplaceAmmo && name === 'ammo') {
                 name = 'boost'
                 size = powerUps[name].size()
