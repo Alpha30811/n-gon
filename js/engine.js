@@ -35,13 +35,13 @@ function playerOnGroundCheck(event) {
                 //sets a hard land where player stays in a crouch for a bit and can't jump
                 //crouch is forced in groundControl below
                 const momentum = player.velocity.y * player.mass //player mass is 5 so this triggers at 26 down velocity, unless the player is holding something
-                if (momentum > m.hardLanding) {
+                if (momentum > m.hardLanding && !input.up) {
                     m.doCrouch();
                     m.yOff = m.yOffWhen.jump;
                     m.hardLandCD = m.cycle + m.hardLandCDScale * Math.min(momentum / 6.5 - 6, 40)
                     //falling damage
                     if (tech.isFallingDamage && m.immuneCycle < m.cycle && momentum > 150) {
-                        m.damage(Math.min(Math.sqrt(momentum - 133) * 0.01, 0.25));
+                        m.damage(Math.min(Math.sqrt(momentum - 100) * 0.01, 0.2));
                         if (m.immuneCycle < m.cycle + m.collisionImmuneCycles) m.immuneCycle = m.cycle + m.collisionImmuneCycles; //player is immune to damage for 30 cycles
                     }
                 } else {
@@ -177,8 +177,8 @@ function collisionChecks(event) {
                         let angle = Math.atan2(player.position.y - mob[k].position.y, player.position.x - mob[k].position.x);
                         Matter.Body.setVelocity(player, { x: player.velocity.x + 8 * Math.cos(angle), y: player.velocity.y + 8 * Math.sin(angle) });
                         Matter.Body.setVelocity(mob[k], { x: mob[k].velocity.x - 8 * Math.cos(angle), y: mob[k].velocity.y - 8 * Math.sin(angle) });
-                        if (tech.isAnnihilation && !mob[k].shield && !mob[k].isShielded && !mob[k].isBoss && mob[k].isDropPowerUp && m.energy > 0.1 && mob[k].damageReduction > 0) {
-                            m.energy -= 0.1 //* Math.max(m.maxEnergy, m.energy) //0.33 * m.energy
+                        if (tech.isAnnihilation && !mob[k].shield && !mob[k].isShielded && !mob[k].isBoss && mob[k].isDropPowerUp && m.energy > 0.08 && mob[k].damageReduction > 0) {
+                            m.energy -= 0.08 //* Math.max(m.maxEnergy, m.energy) //0.33 * m.energy
                             if (m.immuneCycle === m.cycle + m.collisionImmuneCycles) m.immuneCycle = 0; //player doesn't go immune to collision damage
                             mob[k].death();
                             simulation.drawList.push({ //add dmg to draw queue
